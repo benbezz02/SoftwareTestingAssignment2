@@ -8,4 +8,4 @@ Feature: Search functionality
         And there should be at least 5 products in the search results
         When I click on the first product in the results
         Then I should be taken to the details page for that product
-        Then close the browser
+        Then I close the browser

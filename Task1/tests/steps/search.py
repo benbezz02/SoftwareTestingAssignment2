@@ -13,7 +13,7 @@ wait = None
 @given("I am a user of the nbastore.eu")
 def step_start_driver(context):
     options = Options()
-    options.add_experimental_option("detach", True)
+    options.add_experimental_option("detach", False)
     context.driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()), options=options
     )
@@ -65,10 +65,12 @@ def step_load_searched_page(context):
     assert context.driver.title == "| www.nbastore.eu"
 
 
-@then("there should be at least {no_products} products in the search results")
-def step_load_searched_page(context, no_products):
+@then("there should be at least {num_products} products in the search results")
+def step_load_searched_page(context, num_products):
     products = context.driver.find_elements(By.CLASS_NAME, "column")
-    assert len(products) > int(no_products)
+    assert len(products) > int(
+        num_products
+    ), f"Expected at least {num_products} products, but found {len(products)}"
 
 
 @when("I click on the first product in the results")
@@ -92,6 +94,6 @@ def step_first_product_page(context):
     )
 
 
-@then("close the browser")
+@then("I close the browser")
 def step_then_close_browser(context):
     context.driver.quit()

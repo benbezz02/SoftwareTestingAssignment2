@@ -7,9 +7,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+import re
+
 wait = None
 
-"""
+
 @given("I am a user of nbastore.eu")
 def step_start_driver(context):
     options = Options()
@@ -43,17 +45,18 @@ def step_when_click_category(context, category):
     wait.until(EC.invisibility_of_element_located(discount_box))
 
     category_element = context.driver.find_element(
-        By.XPATH,
-        f"//div[contains(@class, 'layout-row universal-header')][.//nav[contains(@class, 'top-nav-light-container use-team-color show-for-large hover')]][.//ul[contains(@class, 'top-nav-component add-space-right')]][.//a[contains(@aria-label, {category.lower()})]]",
+        By.CSS_SELECTOR,
+        f"[aria-label='{category.lower()}']",
     )
 
     assert category_element is not None
     category_element.click()
 
 
-
 @then("I should be taken to the {category} category")
 def step_then_taken_to_category(context, category):
+    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+
     current_url = context.driver.current_url
     assert (
         category.lower() in current_url.lower()
@@ -62,28 +65,35 @@ def step_then_taken_to_category(context, category):
 
 @then("the category should show at least {num_products} products")
 def step_then_check_product_count(context, num_products):
-    product_elements = context.driver.find_elements(By.XPATH, "//div[@class='product']")
-    assert len(product_elements) >= int(
+    products = context.driver.find_elements(By.CLASS_NAME, "column")
+    assert len(products) > int(
         num_products
-    ), f"Expected at least {num_products} products, but found {len(product_elements)}"
+    ), f"Expected at least {num_products} products, but found {len(products)}"
 
 
-@when("I click on the first product in the results")
+@when("I select the first product in the category")
 def step_when_click_first_product(context):
-    first_product = context.driver.find_element(By.XPATH, "//div[@class='product'][1]")
+    products = context.driver.find_elements(By.CLASS_NAME, "column")
+    first_product = products[0]
+
+    assert first_product is not None
     first_product.click()
 
 
-@then("I should be taken to the details page for that product")
+@then("I should be taken to the details pageof the selected product")
 def step_then_taken_to_product_details(context):
-    # Assuming the details page has a unique identifier, you can check the URL or any other element on the details page
-    WebDriverWait(context.driver, 10).until(EC.url_changes)
-    details_page_url = context.driver.current_url
-    assert (
-        "details" in details_page_url.lower()
-    ), f"Expected 'details' in URL, but got {details_page_url}"
+    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
-"""
+    item = context.driver.find_element(
+        By.CSS_SELECTOR, "[data-talos='labelPdpProductTitle']"
+    )
+    item_n = re.sub(r"\s+", "-", item.text.lower())
+    item_name = re.sub(r"-+", "-", item_n)
+
+    current_url = context.driver.current_url
+    assert (
+        item_name in current_url.lower()
+    ), f"Expected {item_name} in URL, but got {current_url}"
 
 
 @then("I should close the browser")

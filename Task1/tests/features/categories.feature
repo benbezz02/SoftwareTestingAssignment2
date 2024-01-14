@@ -6,8 +6,8 @@ Feature: Reachability of product catogries
     And I click on the <category> category
     Then I should be taken to the <category> category
     And the category should show at least 4 products
-    When I click on the first product in the results
-    Then I should be taken to the details page for that product
+    When I select the first product in the category
+    Then I should be taken to the details pageof the selected product
     Then I should close the browser
 
     Examples:
@@ -16,4 +16,4 @@ Feature: Reachability of product catogries
       | Women    |
       | Footwear |
       | Men      |
-      | Retro    | 
+      | T-Shirts |
