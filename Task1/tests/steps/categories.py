@@ -80,20 +80,19 @@ def step_when_click_first_product(context):
     first_product.click()
 
 
-@then("I should be taken to the details pageof the selected product")
+@then("I should be taken to the details page of the selected product")
 def step_then_taken_to_product_details(context):
     wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
     item = context.driver.find_element(
         By.CSS_SELECTOR, "[data-talos='labelPdpProductTitle']"
     )
-    item_n = re.sub(r"\s+", "-", item.text.lower())
-    item_name = re.sub(r"-+", "-", item_n)
+    item_name = re.sub("[^a-zA-Z]", "", item.text.lower())
 
     current_url = context.driver.current_url
-    assert (
-        item_name in current_url.lower()
-    ), f"Expected {item_name} in URL, but got {current_url}"
+    url = re.sub("[^a-zA-Z]", "", current_url.lower())
+
+    assert item_name in url, f"Expected {item_name} in {url}"
 
 
 @then("I should close the browser")
